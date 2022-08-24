@@ -1,0 +1,19 @@
+:root {
+  --blue: rgb(49, 56, 190);
+  --blue-light: rgb(67, 67, 220);
+  --white: white;
+}
+
+button.blue{
+  background-color: var(--blue);
+  border: 2px solid blue;
+  color: var(--white);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 1em;
+  margin-bottom: 1em;
+  cursor: pointer;
+}
+button.blue:hover {
+  background-color: var(--blue-light);
+}
