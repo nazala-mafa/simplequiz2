@@ -29,7 +29,7 @@ class TestController extends Controller
     public function store(Request $request)
     {
         TestModel::create([
-            'test' => $request->test,
+            'title' => $request->title,
             'desc' => $request->desc,
             'user_id' => 1
         ]);
@@ -48,7 +48,7 @@ class TestController extends Controller
         return response([
             'data' => [
                 'test' => $test->toArray(),
-                'questions' => $test->questions()->select(['id', 'id as qId', 'quest'])->get()->each(function($quest) {
+                'questions' => $test->questions()->select(['id', 'id as qId', 'quest'])->get()->each(function($quest){
                     $answers = $quest->answers()->select(['id as aId', 'text'])->get()->toArray();
                     shuffle($answers);
                     $quest->answers = $answers;
@@ -67,7 +67,12 @@ class TestController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+        $test = TestModel::where('id', $id)->firstOrFail();
+        $test->title = $request->title;
+        $test->desc = $request->desc;
+        $test->save();
+
+        return response([ 'message' => "Test $test->title Berhasil Diupdate" ]);
     }
 
     /**

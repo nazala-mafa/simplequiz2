@@ -28,6 +28,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['cors', 'auth:sanctum']], function($route) {
     $route->resource('test', TestController::class)->except('create', 'edit');
+    $route->resource('question', QuestionController::class)->except('create', 'edit');
     $route->post('/test/get-score/{testId}/{userId}', [TestController::class, 'getScore']);
 
     $route->resource('users', UserController::class)->except('create', 'edit');

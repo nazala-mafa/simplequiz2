@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnswerModel;
+use App\Models\QuestionModel;
+use App\Models\TestModel;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
@@ -13,17 +16,20 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $test = TestModel::where('id', request()->get('id'))->first();
+        return response([
+            'data' => [
+                'test' => $test->toArray(),
+                'questions' => $test->questions()->select(['id', 'id as qId', 'quest'])->get()->each(function($quest){
+                    $quest->answers = array_map(function($answer){
+                        return [
+                            'text' => $answer['text'],
+                            'is_true' => $answer['is_true'] == '1'
+                        ];
+                    }, $quest->answers()->select(['text', 'is_true'])->get()->toArray());
+                })
+            ]
+        ]);
     }
 
     /**
@@ -34,7 +40,27 @@ class QuestionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $questionId = $request->question_id;
+        if($questionId) {
+            QuestionModel::where('id', $questionId)->update([
+                'test_id' => $request->test_id,
+                'quest' => $request->quest
+            ]);
+        }else{
+            $questionId = QuestionModel::insertGetId([
+                'test_id' => $request->test_id,
+                'quest' => $request->quest
+            ]);
+        }
+
+        AnswerModel::where('question_id', $questionId)->delete();
+        $answersData = array_map(function($row)use($questionId){
+            $row['question_id'] = $questionId;
+            return $row;
+        }, $request->answers);
+        AnswerModel::insert($answersData);
+
+        return response(['message' => 'Pertanyaan Berhasil Ditambah.']);
     }
 
     /**
