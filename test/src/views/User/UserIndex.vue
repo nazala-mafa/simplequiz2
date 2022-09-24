@@ -41,6 +41,7 @@
 import { SERVER_URL } from '../../lib/const';
 import MessageBlock from '../../components/MessageBlock.vue';
 import store from '../../store';
+import { getUser } from '../../lib/utils';
 
 export default {
   name: 'UserIndex',
@@ -75,7 +76,11 @@ export default {
       })
     }
   },
-  created() {
+  async created() {
+    await getUser().then(user => {
+      if(user.role != 'admin') this.$router.push('/');
+    })
+
     fetch(SERVER_URL+'api/users', {
       headers: { 
         "Accept": "application/json",
